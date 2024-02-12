@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game with Digital Marketing Elements</title>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game-board {
+    background-color: #000000;
+    width: 400px;
+    height: 400px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .snake-segment {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px red, 0 0 20px red; /* Glowing effect */
+    border-radius: 5px; /* Slightly rounded segments for the snake */
+  }
+  .apple {
+    position: absolute;
+    color: red; /* Text color */
+    box-shadow: 0 0 10px red, 0 0 20px red; /* Glowing effect for the text */
+    font-size: 16px; /* Text size */
+    white-space: nowrap; /* Ensure the text does not wrap */
+  }
+</style>
+</head>
+<body>
+
+<div id="game-board"></div>
+
+<script>
+  const board = document.getElementById('game-board');
+  const board_size = 400;
+  const cell_size = 20;
+  let snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}];
+  let apple = {x: 300, y: 200, text: 'Digital Marketing'};
+  let snake_direction = {x: cell_size, y: 0};
+  let game_speed = 200;
+  const items = ['Digital Marketing', 'Graphic Design', 'SEO']; // Text items to replace the apple
+
+  function drawGameBoard() {
+    board.innerHTML = '';
+    snake.forEach(segment => {
+      const snakeElement = document.createElement('div');
+      snakeElement.style.left = `${segment.x}px`;
+      snakeElement.style.top = `${segment.y}px`;
+      snakeElement.classList.add('snake-segment');
+      board.appendChild(snakeElement);
+    });
+
+    const appleElement = document.createElement('div');
+    appleElement.style.left = `${apple.x}px`;
+    appleElement.style.top = `${apple.y}px`;
+    appleElement.classList.add('apple');
+    appleElement.textContent = apple.text; // Display text instead of an icon
+    board.appendChild(appleElement);
+  }
+
+  function moveSnake() {
+    const newHead = {x: snake[0].x + snake_direction.x, y: snake[0].y + snake_direction.y};
+    snake.unshift(newHead);
+    if (snake[0].x === apple.x && snake[0].y === apple.y) {
+      placeApple();
+    } else {
+      snake.pop();
+    }
+  }
+
+  function placeApple() {
+    apple.x = Math.floor(Math.random() * (board_size / cell_size)) * cell_size;
+    apple.y = Math.floor(Math.random() * (board_size / cell_size)) * cell_size;
+    apple.text = items[Math.floor(Math.random() * items.length)]; // Randomly select an item text
+  }
+
+  function changeDirection(event) {
+    const keyPressed = event.keyCode;
+    const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
+    const goingUp = snake_direction.y === -cell_size;
+    const goingDown = snake_direction.y === cell_size;
+    const goingRight = snake_direction.x === cell_size;
+    const goingLeft = snake_direction.x === -cell_size;
+    if (keyPressed === LEFT && !goingRight) snake_direction = {x: -cell_size, y: 0};
+    if (keyPressed === UP && !goingDown) snake_direction = {x: 0, y: -cell_size};
+    if (keyPressed === RIGHT && !goingLeft) snake_direction = {x: cell_size, y: 0};
+    if (keyPressed === DOWN && !goingUp) snake_direction = {x: 0, y: cell_size};
+  }
+
+  function checkGameOver() {
+    const hitLeftWall = snake[0].x < 0;
+    const hitRightWall = snake[0].x > board_size - cell_size;
+    const hitToptWall = snake[0].y < 0;
+    const hitBottomWall = snake[0].y > board_size - cell_size;
+    return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall || snake.slice(1).some(segment => segment.x === snake[0].x && segment.y === snake[0].y);
+  }
+
+  function gameLoop() {
+    if (checkGameOver()) {
+      alert('Game Over');
+      window.location.reload();
+    } else {
+      moveSnake();
+      drawGameBoard();
+    }
+  }
+
+  document.addEventListener('keydown', changeDirection);
+  setInterval(gameLoop, game_speed);
+</script>
+
+</body>
+</html>
